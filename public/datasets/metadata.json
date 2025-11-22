@@ -1,0 +1,54 @@
+{
+  "datasets": [
+    {
+      "name": "demo",
+      "displayName": "Demo Graph (30 B)",
+      "description": "A small demonstration graph with 5 nodes and 6 edges. Perfect for understanding PageRank algorithm basics.",
+      "nodes": 5,
+      "edges": 6,
+      "source": "Custom",
+      "url": "",
+      "file": "demo.txt"
+    },
+    {
+      "name": "dblp",
+      "displayName": "DBLP Co-authorship (1.7 KB)",
+      "description": "Collaboration network from the DBLP computer science bibliography. Nodes represent authors, edges represent co-authorship relationships.",
+      "nodes": 100,
+      "edges": 250,
+      "source": "Stanford SNAP",
+      "url": "https://snap.stanford.edu/data/com-DBLP.html",
+      "file": "dblp.txt"
+    },
+    {
+      "name": "email-enron",
+      "displayName": "Enron Email Network (1.3 KB)",
+      "description": "Email communication network from the Enron Corporation. Nodes represent email addresses, directed edges represent email exchanges.",
+      "nodes": 80,
+      "edges": 180,
+      "source": "Stanford SNAP",
+      "url": "https://snap.stanford.edu/data/email-Enron.html",
+      "file": "email-enron.txt"
+    },
+    {
+      "name": "astro",
+      "displayName": "Astrophysics Citations (2.0 KB)",
+      "description": "Citation network from the arXiv Astrophysics category. Nodes represent scientific papers, edges represent citations between papers.",
+      "nodes": 120,
+      "edges": 300,
+      "source": "Stanford SNAP",
+      "url": "https://snap.stanford.edu/data/ca-AstroPh.html",
+      "file": "astro.txt"
+    },
+    {
+      "name": "dblp-full",
+      "displayName": "DBLP Co-authorship (14.0 MB)",
+      "description": "Full DBLP collaboration network. Large dataset with over 300,000 nodes. Recommended to use WASM algorithms only.",
+      "nodes": 317080,
+      "edges": 1049866,
+      "source": "Stanford SNAP",
+      "url": "https://snap.stanford.edu/data/com-DBLP.html",
+      "file": "dblp-full.txt"
+    }
+  ]
+}

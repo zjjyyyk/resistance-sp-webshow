@@ -1,0 +1,9 @@
+# Simple test graph - 5 nodes, 6 edges
+# This is a small directed graph for testing purposes
+5 6
+0 1
+0 2
+1 2
+2 3
+3 4
+4 2
