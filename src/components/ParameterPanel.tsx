@@ -22,6 +22,7 @@ interface ParameterPanelProps {
   results: AlgorithmResultWithMetrics[];
   setResults: (results: AlgorithmResultWithMetrics[]) => void;
   groundTruthId: string | null;
+  setGroundTruthId: (id: string | null) => void;
   s: number;
   setS: (value: number) => void;
   t: number;
@@ -40,6 +41,7 @@ interface ParameterPanelProps {
   ) => string;
   cancel: (taskId: string) => void;
   showToast: (type: 'success' | 'error' | 'warning' | 'info', message: string) => void;
+  isEditMode: boolean;
 }
 
 export function ParameterPanel({
@@ -50,6 +52,7 @@ export function ParameterPanel({
   results,
   setResults,
   groundTruthId,
+  setGroundTruthId,
   s,
   setS,
   t,
@@ -59,6 +62,7 @@ export function ParameterPanel({
   compute,
   cancel,
   showToast,
+  isEditMode,
 }: ParameterPanelProps) {
   const [dataSource, setDataSource] = useState<'preset' | 'synthetic' | 'upload'>('preset');
   const [selectedDataset, setSelectedDataset] = useState<string>('dblp');
@@ -108,6 +112,8 @@ export function ParameterPanel({
       try {
         const graph = await loadDataset('dblp');
         setCurrentGraph(graph);
+        setResults([]);
+        setGroundTruthId(null);
         const maxDegNode = findMaxDegreeNode(graph);
         setV(maxDegNode);
         showToast('success', `Auto-loaded dataset: dblp (${graph.nodes} nodes, ${graph.edges.length} edges)`);
@@ -125,6 +131,8 @@ export function ParameterPanel({
     try {
       const graph = await loadDataset(datasetName);
       setCurrentGraph(graph);
+      setResults([]);
+      setGroundTruthId(null);
       
       // Auto-select max degree node as v
       const maxDegNode = findMaxDegreeNode(graph);
@@ -148,6 +156,8 @@ export function ParameterPanel({
     try {
       const graph = await loadFromFile(file);
       setCurrentGraph(graph);
+      setResults([]);
+      setGroundTruthId(null);
       setSelectedDataset(file.name);
       
       // Auto-select max degree node as v
@@ -171,6 +181,8 @@ export function ParameterPanel({
 
   const handleSyntheticGraphGenerated = (graph: ParsedGraph) => {
     setCurrentGraph(graph);
+    setResults([]);
+    setGroundTruthId(null);
     setSelectedDataset('Synthetic Graph');
     
     // Auto-select max degree node as v
@@ -275,6 +287,14 @@ export function ParameterPanel({
     <div className="card space-y-6">
       <h2 className="text-xl font-bold text-primary-400">Parameters</h2>
 
+      {/* Edit Mode Warning */}
+      {isEditMode && (
+        <div className="bg-amber-900 border border-amber-700 p-3 rounded text-sm text-amber-200">
+          <div className="font-semibold mb-1">⚠️ Edit Mode Active</div>
+          <p>Graph editing is in progress. All controls are disabled. Save or cancel the edit to continue.</p>
+        </div>
+      )}
+
       {/* Data Source Selection */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-300">Data Source</label>
@@ -287,7 +307,7 @@ export function ParameterPanel({
               checked={dataSource === 'preset'}
               onChange={(e) => setDataSource(e.target.value as 'preset')}
               className="w-4 h-4 text-primary-600"
-              disabled={isComputing}
+              disabled={isComputing || isEditMode}
             />
             <span className="text-sm">Preset Dataset</span>
           </label>
@@ -299,7 +319,7 @@ export function ParameterPanel({
               checked={dataSource === 'synthetic'}
               onChange={(e) => setDataSource(e.target.value as 'synthetic')}
               className="w-4 h-4 text-primary-600"
-              disabled={isComputing}
+              disabled={isComputing || isEditMode}
             />
             <span className="text-sm">Synthetic Graph</span>
           </label>
@@ -311,7 +331,7 @@ export function ParameterPanel({
               checked={dataSource === 'upload'}
               onChange={(e) => setDataSource(e.target.value as 'upload')}
               className="w-4 h-4 text-primary-600"
-              disabled={isComputing}
+              disabled={isComputing || isEditMode}
             />
             <span className="text-sm">Upload File</span>
           </label>
@@ -332,7 +352,7 @@ export function ParameterPanel({
                   checked={selectedDataset === dataset.name}
                   onChange={(e) => handleDatasetChange(e.target.value)}
                   className="w-4 h-4 text-primary-600"
-                  disabled={isComputing}
+                  disabled={isComputing || isEditMode}
                 />
                 <span className="text-sm">{dataset.displayName}</span>
               </label>
@@ -345,7 +365,7 @@ export function ParameterPanel({
       {dataSource === 'synthetic' && (
         <SyntheticGraphSelector
           onGraphGenerated={handleSyntheticGraphGenerated}
-          disabled={isComputing}
+          disabled={isComputing || isEditMode}
         />
       )}
 
@@ -354,7 +374,7 @@ export function ParameterPanel({
         <div className="space-y-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            disabled={isComputing}
+            disabled={isComputing || isEditMode}
             className="btn-secondary w-full flex items-center justify-center gap-2"
           >
             <Upload className="w-4 h-4" />
@@ -413,7 +433,7 @@ export function ParameterPanel({
         setT={setT}
         v={v}
         setV={setV}
-        disabled={isComputing}
+        disabled={isComputing || isEditMode}
       />
 
       {/* Algorithm Selection */}
@@ -423,7 +443,7 @@ export function ParameterPanel({
           value={algorithm}
           onChange={(e) => setAlgorithm(e.target.value as AlgorithmType)}
           className="input-field"
-          disabled={isComputing}
+          disabled={isComputing || isEditMode}
         >
           <option value="push-v-sp-js">Push_v_sp (JavaScript)</option>
           <option value="push-v-sp-wasm">Push_v_sp (WebAssembly)</option>
@@ -446,7 +466,7 @@ export function ParameterPanel({
             value={Math.log10(rmax)}
             onChange={(e) => setRmax(Math.pow(10, parseFloat(e.target.value)))}
             className="w-full"
-            disabled={isComputing}
+            disabled={isComputing || isEditMode}
           />
           <input
             type="number"
@@ -456,7 +476,7 @@ export function ParameterPanel({
             value={rmax}
             onChange={(e) => setRmax(parseFloat(e.target.value))}
             className="input-field"
-            disabled={isComputing}
+            disabled={isComputing || isEditMode}
           />
         </div>
       ) : (
@@ -472,7 +492,7 @@ export function ParameterPanel({
             value={times}
             onChange={(e) => setTimes(parseInt(e.target.value))}
             className="w-full"
-            disabled={isComputing}
+            disabled={isComputing || isEditMode}
           />
           <input
             type="number"
@@ -482,7 +502,7 @@ export function ParameterPanel({
             value={times}
             onChange={(e) => setTimes(parseInt(e.target.value))}
             className="input-field"
-            disabled={isComputing}
+            disabled={isComputing || isEditMode}
           />
         </div>
       )}
@@ -507,7 +527,7 @@ export function ParameterPanel({
       <div className="space-y-2">
         <button
           onClick={handleCompute}
-          disabled={!currentGraph || isComputing}
+          disabled={!currentGraph || isComputing || isEditMode}
           className="btn-primary w-full flex items-center justify-center gap-2"
         >
           {isComputing ? (
@@ -534,7 +554,7 @@ export function ParameterPanel({
 
         <button
           onClick={handleClearResults}
-          disabled={results.length === 0 || isComputing}
+          disabled={results.length === 0 || isComputing || isEditMode}
           className="btn-secondary w-full flex items-center justify-center gap-2"
         >
           <Trash2 className="w-4 h-4" />

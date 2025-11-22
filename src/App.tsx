@@ -22,6 +22,7 @@ function App() {
   const [s, setS] = useState<number>(0);
   const [t, setT] = useState<number>(1);
   const [v, setV] = useState<number>(0);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const { toasts, showToast, removeToast } = useToast();
   const { compute, cancel } = useResistanceWorker();
@@ -82,6 +83,7 @@ function App() {
               results={results}
               setResults={setResults}
               groundTruthId={groundTruthId}
+              setGroundTruthId={setGroundTruthId}
               s={s}
               setS={setS}
               t={t}
@@ -91,6 +93,7 @@ function App() {
               compute={compute}
               cancel={cancel}
               showToast={showToast}
+              isEditMode={isEditMode}
             />
           </div>
 
@@ -103,6 +106,21 @@ function App() {
                 s={s}
                 t={t}
                 v={v}
+                isEditMode={isEditMode}
+                setIsEditMode={setIsEditMode}
+                onGraphChange={(g) => {
+                  // Update graph state
+                  // Only clear results if node count changed (new graph), not if just edges changed (edit mode save)
+                  const isNewGraph = currentGraph && currentGraph.nodes !== g.nodes;
+                  
+                  setCurrentGraph(g);
+                  
+                  if (isNewGraph) {
+                    setResults([]);
+                    setGroundTruthId(null);
+                  }
+                  // If same node count, keep results (just edges changed from edit mode)
+                }}
               />
             )}
 
